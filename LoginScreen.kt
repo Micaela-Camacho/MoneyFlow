@@ -21,7 +21,7 @@ fun LoginScreen(onNavigateToDashboard: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(text = "MoneyFlow", style = MaterialTheme.typography.headlineLarge)
-        Text(text = "Gestión de Gastos Familiares", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "Organizá tus finanzas, alcanzá tus metas", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(30.dp))
         Button(onClick = onNavigateToDashboard) {
             Text(text = "Ingresar a la App")

@@ -26,6 +26,8 @@ fun AddGastoScreen(onNavigateBack: () -> Unit) {
         Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Nuevo Gasto", style = MaterialTheme.typography.headlineMedium)
 
+        // CAMPOS DE TEXTO DE DISEÑO (FORMULARIO MOCK)
+        // enabled = false y valores fijos para que se renderice visualmente el formulario hasta tener la lógica reactiva
         OutlinedTextField(value = "Internet Fibra", onValueChange = {}, label = { Text("Descripción") }, enabled = false, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = "8500", onValueChange = {}, label = { Text("Monto ($)") }, enabled = false, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = "Servicios", onValueChange = {}, label = { Text("Categoría") }, enabled = false, modifier = Modifier.fillMaxWidth())

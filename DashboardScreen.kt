@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
+// Panel/Dashboard principal de la app
 fun DashboardScreen(onNavigateToAddGasto: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -26,7 +27,7 @@ fun DashboardScreen(onNavigateToAddGasto: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "Mi Tablero Financiero", style = MaterialTheme.typography.headlineMedium)
+        Text(text = "Resumen del Mes", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
         Card(
