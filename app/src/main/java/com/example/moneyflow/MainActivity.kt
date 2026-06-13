@@ -12,13 +12,13 @@ import com.example.moneyflow.ui.theme.MoneyFlowTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) // <-- Corregido el super que faltaba el (savedInstanceState)
+        super.onCreate(savedInstanceState) //
 
-        // 1. Conectamos con la base de datos global de MoneyFlowApp
+        // 1. Conecta con la base de datos global de MoneyFlowApp
         val app = application as MoneyFlowApp
         val database = app.database
 
-        // 2. Fabricamos el ViewModel pasándole la aduana (el DAO)
+        // 2. Fabrica el ViewModel pasándole el DAO
         val factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return TransaccionViewModel(database.transaccionDao()) as T
@@ -46,13 +46,13 @@ class MainActivity : ComponentActivity() {
                         onLoginClick = { currentScreen = MoneyFlowScreen.Login }
                     )
 
-                    // 3. Le pasamos el viewModel a la Home para que dibuje la lista de gastos
+                    // 3. Le pasa el viewModel a la Home para que dibuje la lista de gastos
                     MoneyFlowScreen.Home -> HomeScreen(
                         viewModel = viewModel,
                         onNavigate = { currentScreen = it }
                     )
 
-                    // 4. Le pasamos el viewModel a la pantalla de agregar para que guarde en la BD
+                    // 4. Le pasa el viewModel a la pantalla de agregar para que guarde en la BD
                     MoneyFlowScreen.AddExpense -> AddExpenseScreen(
                         viewModel = viewModel,
                         onNavigate = { currentScreen = it }
