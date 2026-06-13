@@ -4,13 +4,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.moneyflow.navigation.MoneyFlowScreen
 import com.example.moneyflow.screens.*
 import com.example.moneyflow.ui.theme.MoneyFlowTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState) // <-- Corregido el super que faltaba el (savedInstanceState)
+
+        // 1. Conectamos con la base de datos global de MoneyFlowApp
+        val app = application as MoneyFlowApp
+        val database = app.database
+
+        // 2. Fabricamos el ViewModel pasándole la aduana (el DAO)
+        val factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return TransaccionViewModel(database.transaccionDao()) as T
+            }
+        }
+        val viewModel = ViewModelProvider(this, factory)[TransaccionViewModel::class.java]
 
         setContent {
             MoneyFlowTheme {
@@ -32,11 +46,15 @@ class MainActivity : ComponentActivity() {
                         onLoginClick = { currentScreen = MoneyFlowScreen.Login }
                     )
 
+                    // 3. Le pasamos el viewModel a la Home para que dibuje la lista de gastos
                     MoneyFlowScreen.Home -> HomeScreen(
+                        viewModel = viewModel,
                         onNavigate = { currentScreen = it }
                     )
 
+                    // 4. Le pasamos el viewModel a la pantalla de agregar para que guarde en la BD
                     MoneyFlowScreen.AddExpense -> AddExpenseScreen(
+                        viewModel = viewModel,
                         onNavigate = { currentScreen = it }
                     )
 

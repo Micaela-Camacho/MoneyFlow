@@ -7,17 +7,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.moneyflow.TransaccionViewModel
 import com.example.moneyflow.components.BottomBar
 import com.example.moneyflow.navigation.MoneyFlowScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
+    viewModel: TransaccionViewModel, //  recibe el motor de datos
     onNavigate: (MoneyFlowScreen) -> Unit
 ) {
     var amount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
     Column(
@@ -56,34 +57,43 @@ fun AddExpenseScreen(
         OutlinedTextField(
             value = category,
             onValueChange = { category = it },
-            placeholder = { Text("☺  Seleccionar categoría") },
+            placeholder = { Text("Seleccionar categoría") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text("Fecha")
-        OutlinedTextField(
-            value = date,
-            onValueChange = { date = it },
-            placeholder = { Text("MM/DD/YYYY") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text("Descripción (opcional)")
+        Text("Descripción")
         OutlinedTextField(
             value = description,
             onValueChange = { description = it },
-            placeholder = { Text("▤  Ej: Almuerzo con amigos") },
+            placeholder = { Text("Ej: Almuerzo con amigos") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(48.dp))
 
         Button(
-            onClick = { onNavigate(MoneyFlowScreen.Home) },
+            onClick = {
+                // 2. convierte el texto del monto a número de forma segura
+                val montoNumerico = amount.toDoubleOrNull() ?: 0.0
+
+                // Si la descripción está vacía, le pone el nombre de la categoría por defecto
+                val descripcionFinal = description.ifBlank { category.ifBlank { "Gasto general" } }
+
+                if (montoNumerico > 0.0) {
+                    // 3. Guarda físicamente en Room a través del ViewModel
+                    viewModel.agregarTransaccion(
+                        descripcion = descripcionFinal,
+                        monto = montoNumerico,
+                        tipo = "EGRESO", // Queda como egreso automático
+                        categoria = category.ifBlank { "Varios" }
+                    )
+                    // 4. Vuelve a la pantalla principal
+                    onNavigate(MoneyFlowScreen.Home)
+                }
+            },
+            enabled = amount.isNotBlank(), // El botón se deshabilita si no escribieron un monto
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF7154B8)
