@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moneyflow.TransaccionViewModel
+import com.example.moneyflow.UsuarioViewModel
 import com.example.moneyflow.components.BottomBar
 import com.example.moneyflow.data.Transaccion
 import com.example.moneyflow.navigation.MoneyFlowScreen
@@ -24,17 +25,27 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
-    viewModel: TransaccionViewModel, //  Recibe el motor
+    transaccionViewModel: TransaccionViewModel, // Recibe el motor de datos
+    usuarioViewModel: UsuarioViewModel,         // Recibe el motor de usuarios
     onNavigate: (MoneyFlowScreen) -> Unit
 ) {
-    // ve la base de datos en tiempo real
-    val listaTransacciones by viewModel.todasLasTransacciones.collectAsState(initial = emptyList())
+    // 1. Ve los datos de transacciones en tiempo real
+    val listaTransacciones by transaccionViewModel.todasLasTransacciones.collectAsState(initial = emptyList())
 
-    // procesa los montos según lo que haya en la base de datos
+    // 2. Escucha los datos del usuario logueado en tiempo real
+    val usuarioActual by usuarioViewModel.usuarioActual.collectAsState()
+
+    // 3. Procesa los montos de transacciones
     val totalIngresos = listaTransacciones.filter { it.tipo == "INGRESO" }.sumOf { it.monto }
     val totalGastos = listaTransacciones.filter { it.tipo == "EGRESO" }.sumOf { it.monto }
-    val saldoDisponible = totalIngresos - totalGastos
-    val totalAhorros = 0.0 //
+    val totalAhorros = 0.0
+
+    // 4. LÓGICA DE PERFIL: Si hay un usuario logueado, usa su sueldo y nombre. Si no, valores por defecto.
+    val sueldoBase = usuarioActual?.sueldoMensual ?: 0.0
+    val nombreUsuario = usuarioActual?.nombre ?: "Usuario"
+
+    // El saldo toma como punto de partida el sueldo mensual base cargado en el registro
+    val saldoDisponible = sueldoBase + totalIngresos - totalGastos
 
     Column(
         modifier = Modifier
@@ -49,7 +60,7 @@ fun HomeScreen(
                 .padding(18.dp)
         ) {
             Text(
-                text = "Hola, Usuario 👋", //
+                text = "Hola, $nombreUsuario 👋", //
                 color = Color.White,
                 fontSize = 20.sp
             )

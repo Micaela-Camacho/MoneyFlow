@@ -5,9 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Transaccion::class], version = 1, exportSchema = false)
+@Database(entities = [Transaccion::class, Usuario::class], version = 2, exportSchema = false)
 abstract class MoneyFlowDatabase : RoomDatabase() {
     abstract fun transaccionDao(): TransaccionDao
+
+    abstract fun usuarioDao(): UsuarioDao
 
     companion object {
         @Volatile
@@ -19,7 +21,7 @@ abstract class MoneyFlowDatabase : RoomDatabase() {
                     context.applicationContext,
                     MoneyFlowDatabase::class.java,
                     "money_flow_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
