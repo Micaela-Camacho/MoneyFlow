@@ -29,23 +29,21 @@ fun HomeScreen(
     usuarioViewModel: UsuarioViewModel,         // Recibe el motor de usuarios
     onNavigate: (MoneyFlowScreen) -> Unit
 ) {
-    // 1. Ve los datos de transacciones en tiempo real
+    // 1. Escuchamos las transacciones y el usuario en tiempo real
     val listaTransacciones by transaccionViewModel.todasLasTransacciones.collectAsState(initial = emptyList())
-
-    // 2. Escucha los datos del usuario logueado en tiempo real
     val usuarioActual by usuarioViewModel.usuarioActual.collectAsState()
 
-    // 3. Procesa los montos de transacciones
-    val totalIngresos = listaTransacciones.filter { it.tipo == "INGRESO" }.sumOf { it.monto }
-    val totalGastos = listaTransacciones.filter { it.tipo == "EGRESO" }.sumOf { it.monto }
-    val totalAhorros = 0.0
+    // 2. Traem los totales ya masticados y procesados desde el ViewModel
+    val totalGastos by transaccionViewModel.totalGastos.collectAsState()
+    val totalIngresosExtra by transaccionViewModel.totalIngresosExtra.collectAsState()
+    val totalAhorros by transaccionViewModel.totalAhorros.collectAsState()
 
-    // 4. LÓGICA DE PERFIL: Si hay un usuario logueado, usa su sueldo y nombre. Si no, valores por defecto.
+    // 3. LÓGICA DE PERFIL: Obtiene los datos base de la cuenta
     val sueldoBase = usuarioActual?.sueldoMensual ?: 0.0
     val nombreUsuario = usuarioActual?.nombre ?: "Usuario"
 
-    // El saldo toma como punto de partida el sueldo mensual base cargado en el registro
-    val saldoDisponible = sueldoBase + totalIngresos - totalGastos
+    // 4. El saldo final contempla de forma exacta el sueldo base, ingresos extra, gastos y ahorros
+    val saldoDisponible = sueldoBase + totalIngresosExtra - totalGastos - totalAhorros
 
     Column(
         modifier = Modifier
@@ -127,7 +125,7 @@ fun HomeScreen(
 
                 SmallCard(
                     "Ingresos",
-                    "$${String.format(Locale("es", "AR"), "%,.2f", totalIngresos)}",
+                    "$${String.format(Locale("es", "AR"), "%,.2f", totalIngresosExtra)}",
                     Color(0xFF5AAAF5),
                     Color.Blue
                 )

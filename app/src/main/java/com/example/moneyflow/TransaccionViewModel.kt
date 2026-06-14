@@ -4,31 +4,52 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moneyflow.data.Transaccion
 import com.example.moneyflow.data.TransaccionDao
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TransaccionViewModel(private val transaccionDao: TransaccionDao) : ViewModel() {
 
-    // 1. Traemos el flujo vivo de transacciones desde el DAO
-    val todasLasTransacciones: Flow<List<Transaccion>> = transaccionDao.obtenerTodas()
+    // 1. StateFlow vivo para poder mapearlo eficientemente
+    val todasLasTransacciones = transaccionDao.obtenerTodas()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
-    // 2. Función para insertar un gasto/ingreso usando Corrutinas en segundo plano
+    // 2. CONTADOR REAL DE GASTOS: Filtra y suma en tiempo real solo los EGRESOS
+    val totalGastos = todasLasTransacciones.map { lista ->
+        lista.filter { it.tipo == "EGRESO" }.sumOf { it.monto }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    // 3. CONTADOR REAL DE INGRESOS EXTRA: Filtra y suma los ingresos manuales
+    val totalIngresosExtra = todasLasTransacciones.map { lista ->
+        lista.filter { it.tipo == "INGRESO" }.sumOf { it.monto }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    // 4. CONTADOR REAL DE AHORROS: Filtra y suma lo destinado a metas de ahorro
+    val totalAhorros = todasLasTransacciones.map { lista ->
+        lista.filter { it.tipo == "AHORRO" }.sumOf { it.monto }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+
+    // 5. Función para insertar usando Corrutinas
     fun agregarTransaccion(descripcion: String, monto: Double, tipo: String, categoria: String) {
         val nuevaTransaccion = Transaccion(
             descripcion = descripcion,
             monto = monto,
             tipo = tipo,
             categoria = categoria,
-            fecha = System.currentTimeMillis() // Captura el milisegundo exacto de ahora
+            fecha = System.currentTimeMillis()
         )
-
-        // viewModelScope.launch inicia la corrutina (el segundo plano)
         viewModelScope.launch {
             transaccionDao.insertar(nuevaTransaccion)
         }
     }
 
-    // 3. Función para borrar un movimiento
+    // 6. Función para borrar
     fun eliminarTransaccion(transaccion: Transaccion) {
         viewModelScope.launch {
             transaccionDao.borrar(transaccion)
