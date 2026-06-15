@@ -14,12 +14,26 @@ import com.example.moneyflow.navigation.MoneyFlowScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
-    viewModel: TransaccionViewModel, //  recibe el motor de datos
-    onNavigate: (MoneyFlowScreen) -> Unit
+    viewModel: TransaccionViewModel, // recibe el motor de datos
+    onNavigate: (MoneyFlowScreen) -> Unit,
+    shakeTriggered: Boolean,         // 1. NUEVO: Recibe el aviso del sensor desde el Main
+    onPositionReset: () -> Unit      // 2. NUEVO: Función para avisarle al Main que ya limpiamos
 ) {
     var amount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+
+    // 3. NUEVO: El "Efecto Lanzado" reacciona de inmediato cuando shakeTriggered pasa a ser TRUE
+    LaunchedEffect(shakeTriggered) {
+        if (shakeTriggered) {
+            // Se vacían de forma limpia los estados de los TextField que hicieron las chicas
+            amount = ""
+            category = ""
+            description = ""
+            // Le avisamos a la MainActivity que ponga el gatillo en false otra vez
+            onPositionReset()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -75,21 +89,21 @@ fun AddExpenseScreen(
 
         Button(
             onClick = {
-                // 2. convierte el texto del monto a número de forma segura
+                // convierte el texto del monto a número de forma segura
                 val montoNumerico = amount.toDoubleOrNull() ?: 0.0
 
                 // Si la descripción está vacía, le pone el nombre de la categoría por defecto
                 val descripcionFinal = description.ifBlank { category.ifBlank { "Gasto general" } }
 
                 if (montoNumerico > 0.0) {
-                    // 3. Guarda físicamente en Room a través del ViewModel
+                    // Guarda físicamente en Room a través del ViewModel
                     viewModel.agregarTransaccion(
                         descripcion = descripcionFinal,
                         monto = montoNumerico,
                         tipo = "EGRESO", // Queda como egreso automático
                         categoria = category.ifBlank { "Varios" }
                     )
-                    // 4. Vuelve a la pantalla principal
+                    // Vuelve a la pantalla principal
                     onNavigate(MoneyFlowScreen.Home)
                 }
             },
