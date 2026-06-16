@@ -50,7 +50,15 @@ class MainActivity : ComponentActivity() {
                     // El Login ahora podría usar el usuarioViewModel más adelante para validar
                     MoneyFlowScreen.Login -> LoginScreen(
                         viewModel = usuarioViewModel,
-                        onLoginClick = { currentScreen = MoneyFlowScreen.Home },
+                        onLoginClick = {
+                            // 1. Obtiene el ID del usuario recién logueado
+                            val id = usuarioViewModel.usuarioLogueadoId.value
+                            if (id != null) {
+                                // 2. Le avisás al ViewModel de transacciones qué usuario filtrar
+                                transaccionViewModel.setUsuarioId(id)
+                            }
+                            currentScreen = MoneyFlowScreen.Home
+                        },
                         onRegisterClick = { currentScreen = MoneyFlowScreen.Register },
                         onForgotPasswordClick = { currentScreen = MoneyFlowScreen.ForgotPassword }
                     )
@@ -58,7 +66,13 @@ class MainActivity : ComponentActivity() {
                     MoneyFlowScreen.Register -> RegisterScreen(
                         viewModel = usuarioViewModel,
                         onBackClick = { currentScreen = MoneyFlowScreen.Login },
-                        onCreateAccountClick = { currentScreen = MoneyFlowScreen.Home },
+                        onCreateAccountClick = { // 1. Obtiene el ID del nuevo usuario recién creado
+                            val id = usuarioViewModel.usuarioLogueadoId.value
+                            if (id != null) {
+                                // 2. Le avisa al transaccionViewModel quién es
+                                transaccionViewModel.setUsuarioId(id)
+                            }
+                            currentScreen = MoneyFlowScreen.Home},
                         onLoginClick = { currentScreen = MoneyFlowScreen.Login }
                     )
                     MoneyFlowScreen.ForgotPassword -> ForgotPasswordScreen(

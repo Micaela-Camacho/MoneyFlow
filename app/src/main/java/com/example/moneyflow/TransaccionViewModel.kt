@@ -4,38 +4,41 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moneyflow.data.Transaccion
 import com.example.moneyflow.data.TransaccionDao
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class TransaccionViewModel(private val transaccionDao: TransaccionDao) : ViewModel() {
 
-    // 1. StateFlow vivo para poder mapearlo eficientemente
-    val todasLasTransacciones = transaccionDao.obtenerTodas()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    // ID del usuario activo para filtrar los datos
+    private val _usuarioIdActual = MutableStateFlow<Int?>(null)
 
-    // 2. CONTADOR REAL DE GASTOS: Filtra y suma en tiempo real solo los EGRESOS
-    val totalGastos = todasLasTransacciones.map { lista ->
+    // Flujo que reacciona automáticamente cada vez que cambia el usuarioId
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val transaccionesUsuario = _usuarioIdActual.flatMapLatest { id ->
+        if (id != null) transaccionDao.obtenerPorUsuario(id)
+        else flowOf(emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Totales calculados sobre la lista filtrada por usuario
+    val totalGastos = transaccionesUsuario.map { lista ->
         lista.filter { it.tipo == "EGRESO" }.sumOf { it.monto }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    // 3. CONTADOR REAL DE INGRESOS EXTRA: Filtra y suma los ingresos manuales
-    val totalIngresosExtra = todasLasTransacciones.map { lista ->
+    val totalIngresosExtra = transaccionesUsuario.map { lista ->
         lista.filter { it.tipo == "INGRESO" }.sumOf { it.monto }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    // 4. CONTADOR REAL DE AHORROS: Filtra y suma lo destinado a metas de ahorro
-    val totalAhorros = todasLasTransacciones.map { lista ->
+    val totalAhorros = transaccionesUsuario.map { lista ->
         lista.filter { it.tipo == "AHORRO" }.sumOf { it.monto }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
+    // Función para actualizar el ID cuando el usuario se loguea
+    fun setUsuarioId(id: Int) {
+        _usuarioIdActual.value = id
+    }
 
-    // 5. Función para insertar usando Corrutinas
+    // Función para insertar
     fun agregarTransaccion(
         usuarioId: Int,
         descripcion: String,
@@ -51,16 +54,16 @@ class TransaccionViewModel(private val transaccionDao: TransaccionDao) : ViewMod
             categoria = categoria,
             fecha = System.currentTimeMillis()
         )
-
         viewModelScope.launch {
             transaccionDao.insertar(nuevaTransaccion)
         }
     }
 
-    // 6. Función para borrar
+    // Función para borrar
     fun eliminarTransaccion(transaccion: Transaccion) {
         viewModelScope.launch {
             transaccionDao.borrar(transaccion)
         }
     }
 }
+

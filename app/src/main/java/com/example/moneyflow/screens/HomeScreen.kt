@@ -29,8 +29,8 @@ fun HomeScreen(
     usuarioViewModel: UsuarioViewModel,         // Recibe el motor de usuarios
     onNavigate: (MoneyFlowScreen) -> Unit
 ) {
-    // 1. Escuchamos las transacciones y el usuario en tiempo real
-    val listaTransacciones by transaccionViewModel.todasLasTransacciones.collectAsState(initial = emptyList())
+    // 1. Escucha las transacciones y el usuario en tiempo real
+    val transacciones by transaccionViewModel.transaccionesUsuario.collectAsState()
     val usuarioActual by usuarioViewModel.usuarioActual.collectAsState()
 
     // 2. Traem los totales ya masticados y procesados desde el ViewModel
@@ -144,7 +144,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             // LISTA DINÁMICA: Si no hay movimientos muestra un aviso, si hay usa un LazyColumn
-            if (listaTransacciones.isEmpty()) {
+            if (transacciones.isEmpty()) {
                 Text(
                     text = "No hay movimientos registrados todavía.",
                     color = Color.Gray,
@@ -156,7 +156,7 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(listaTransacciones) { transaccion ->
+                    items(transacciones) { transaccion ->
                         // Formatea los milisegundos a una fecha legible
                         val formatoFecha = SimpleDateFormat("dd 'de' MMMM", Locale("es", "AR"))
                         val fechaLegible = formatoFecha.format(Date(transaccion.fecha))
