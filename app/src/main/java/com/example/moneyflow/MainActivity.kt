@@ -1,4 +1,5 @@
 package com.example.moneyflow
+import com.example.moneyflow.MetaAhorroViewModel
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,6 +29,9 @@ class MainActivity : ComponentActivity() {
                     modelClass.isAssignableFrom(UsuarioViewModel::class.java) -> {
                         UsuarioViewModel(database.usuarioDao()) as T
                     }
+                    modelClass.isAssignableFrom(MetaAhorroViewModel::class.java) -> {
+                        MetaAhorroViewModel(database.metaAhorroDao()) as T
+                    }
                     else -> throw IllegalArgumentException("ViewModel Desconocido")
                 }
             }
@@ -36,6 +40,7 @@ class MainActivity : ComponentActivity() {
         // 3. Inicializa los controladores de datos (Backend)
         val transaccionViewModel = ViewModelProvider(this, factory)[TransaccionViewModel::class.java]
         val usuarioViewModel = ViewModelProvider(this, factory)[UsuarioViewModel::class.java]
+        val metaAhorroViewModel = ViewModelProvider(this, factory)[MetaAhorroViewModel::class.java]
 
         setContent {
             MoneyFlowTheme {
@@ -79,12 +84,19 @@ class MainActivity : ComponentActivity() {
                         onNavigate = { currentScreen = it }
                     )
                     MoneyFlowScreen.Savings -> SavingsScreen(
+                        viewModel = metaAhorroViewModel,
+                        usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
                         onNavigate = { currentScreen = it }
                     )
-
                     // Pasa usuarioViewModel para ver y editar los datos del perfil
                     MoneyFlowScreen.Profile -> ProfileScreen(
                         viewModel = usuarioViewModel,
+                        onNavigate = { currentScreen = it }
+                    )
+
+                    MoneyFlowScreen.NewSavingGoal -> NewSavingGoalScreen(
+                        viewModel = metaAhorroViewModel,
+                        usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
                         onNavigate = { currentScreen = it }
                     )
                 }
