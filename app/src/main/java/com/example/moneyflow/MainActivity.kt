@@ -51,15 +51,18 @@ class MainActivity : ComponentActivity() {
                     MoneyFlowScreen.Login -> LoginScreen(
                         viewModel = usuarioViewModel,
                         onLoginClick = { currentScreen = MoneyFlowScreen.Home },
-                        onRegisterClick = { currentScreen = MoneyFlowScreen.Register }
+                        onRegisterClick = { currentScreen = MoneyFlowScreen.Register },
+                        onForgotPasswordClick = { currentScreen = MoneyFlowScreen.ForgotPassword }
                     )
-
                     // El Registro va a usar el usuarioViewModel para insertar el nuevo usuario
                     MoneyFlowScreen.Register -> RegisterScreen(
                         viewModel = usuarioViewModel,
                         onBackClick = { currentScreen = MoneyFlowScreen.Login },
                         onCreateAccountClick = { currentScreen = MoneyFlowScreen.Home },
                         onLoginClick = { currentScreen = MoneyFlowScreen.Login }
+                    )
+                    MoneyFlowScreen.ForgotPassword -> ForgotPasswordScreen(
+                        onBackClick = { currentScreen = MoneyFlowScreen.Login }
                     )
 
                     // Pasa transaccionViewModel para los números y usuarioViewModel para el nombre/sueldo

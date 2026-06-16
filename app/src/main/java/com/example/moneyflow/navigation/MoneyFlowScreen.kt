@@ -9,4 +9,5 @@ sealed class MoneyFlowScreen {
     object AddExpense : MoneyFlowScreen()
     object Savings : MoneyFlowScreen()
     object Profile : MoneyFlowScreen()
+    object ForgotPassword : MoneyFlowScreen()
 }
