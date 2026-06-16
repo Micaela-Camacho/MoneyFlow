@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "comercio": "Coto",
+    "beneficio": "15% OFF Comunidad",
+    "rubro": "Supermercado",
+    "distancia": "a 150m"
+  },
+  {
+    "id": "2",
+    "comercio": "Starbucks",
+    "beneficio": "2x1 en Latte",
+    "rubro": "Cafetería",
+    "distancia": "a 420m"
+  },
+  {
+    "id": "3",
+    "comercio": "YPF",
+    "beneficio": "10% c/App",
+    "rubro": "Combustible",
+    "distancia": "a 800m"
+  }
+]

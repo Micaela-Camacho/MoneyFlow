@@ -1,4 +1,5 @@
 package com.example.moneyflow
+import com.example.moneyflow.MetaAhorroViewModel
 
 import android.content.Context
 import android.hardware.Sensor
@@ -52,6 +53,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     modelClass.isAssignableFrom(UsuarioViewModel::class.java) -> {
                         UsuarioViewModel(database.usuarioDao()) as T
                     }
+                    modelClass.isAssignableFrom(MetaAhorroViewModel::class.java) -> {
+                        MetaAhorroViewModel(database.metaAhorroDao()) as T
+                    }
                     else -> throw IllegalArgumentException("ViewModel Desconocido")
                 }
             }
@@ -60,6 +64,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         // 3. Inicializa los controladores de datos (Backend)
         val transaccionViewModel = ViewModelProvider(this, factory)[TransaccionViewModel::class.java]
         val usuarioViewModel = ViewModelProvider(this, factory)[UsuarioViewModel::class.java]
+        val metaAhorroViewModel = ViewModelProvider(this, factory)[MetaAhorroViewModel::class.java]
 
         setContent {
             MoneyFlowTheme {
@@ -77,16 +82,33 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     // El Login ahora podría usar el usuarioViewModel más adelante para validar
                     MoneyFlowScreen.Login -> LoginScreen(
                         viewModel = usuarioViewModel,
-                        onLoginClick = { currentScreen = MoneyFlowScreen.Home },
-                        onRegisterClick = { currentScreen = MoneyFlowScreen.Register }
+                        onLoginClick = {
+                            // 1. Obtiene el ID del usuario recién logueado
+                            val id = usuarioViewModel.usuarioLogueadoId.value
+                            if (id != null) {
+                                // 2. Le avisás al ViewModel de transacciones qué usuario filtrar
+                                transaccionViewModel.setUsuarioId(id)
+                            }
+                            currentScreen = MoneyFlowScreen.Home
+                        },
+                        onRegisterClick = { currentScreen = MoneyFlowScreen.Register },
+                        onForgotPasswordClick = { currentScreen = MoneyFlowScreen.ForgotPassword }
                     )
-
                     // El Registro va a usar el usuarioViewModel para insertar el nuevo usuario
                     MoneyFlowScreen.Register -> RegisterScreen(
                         viewModel = usuarioViewModel,
                         onBackClick = { currentScreen = MoneyFlowScreen.Login },
-                        onCreateAccountClick = { currentScreen = MoneyFlowScreen.Home },
+                        onCreateAccountClick = { // 1. Obtiene el ID del nuevo usuario recién creado
+                            val id = usuarioViewModel.usuarioLogueadoId.value
+                            if (id != null) {
+                                // 2. Le avisa al transaccionViewModel quién es
+                                transaccionViewModel.setUsuarioId(id)
+                            }
+                            currentScreen = MoneyFlowScreen.Home},
                         onLoginClick = { currentScreen = MoneyFlowScreen.Login }
+                    )
+                    MoneyFlowScreen.ForgotPassword -> ForgotPasswordScreen(
+                        onBackClick = { currentScreen = MoneyFlowScreen.Login }
                     )
 
                     // Pasa transaccionViewModel para los números y usuarioViewModel para el nombre/sueldo
@@ -99,18 +121,26 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     // PASAMOS LAS VARIABLES DEL SENSOR A LA PANTALLA DE AGREGAR GASTO
                     MoneyFlowScreen.AddExpense -> AddExpenseScreen(
                         viewModel = transaccionViewModel,
+                        usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
+                        onNavigate = { currentScreen = it }
                         onNavigate = { currentScreen = it },
                         shakeTriggered = hasShaked,          // Pasa si se sacudió o no
                         onPositionReset = { onShakeEvent.value = false } // Función para apagar el gatillo
                     )
-
                     MoneyFlowScreen.Savings -> SavingsScreen(
+                        viewModel = metaAhorroViewModel,
+                        usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
                         onNavigate = { currentScreen = it }
                     )
-
                     // Pasa usuarioViewModel para ver y editar los datos del perfil
                     MoneyFlowScreen.Profile -> ProfileScreen(
                         viewModel = usuarioViewModel,
+                        onNavigate = { currentScreen = it }
+                    )
+
+                    MoneyFlowScreen.NewSavingGoal -> NewSavingGoalScreen(
+                        viewModel = metaAhorroViewModel,
+                        usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
                         onNavigate = { currentScreen = it }
                     )
                 }

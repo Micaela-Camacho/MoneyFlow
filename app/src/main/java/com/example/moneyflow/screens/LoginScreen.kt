@@ -1,9 +1,17 @@
 package com.example.moneyflow.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -11,7 +19,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moneyflow.UsuarioViewModel
@@ -21,13 +34,17 @@ import com.example.moneyflow.UsuarioViewModel
 fun LoginScreen(
     viewModel: UsuarioViewModel, // 1.Recibe el motor de Usuarios desde el MainActivity
     onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     // Estado local para avisarle al usuario si escribió mal los datos
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    var loginError by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -47,39 +64,100 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Si los datos no coinciden en Room, muestra el cartelito de error
-        errorMessage?.let { error ->
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 8.dp),
-                fontSize = 14.sp
-            )
-        }
-
         Text("Email")
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                emailError = null
+                loginError = null
+            },
             placeholder = { Text("correo@ejemplo.com") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "Email"
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            shape = RoundedCornerShape(14.dp),
+            isError = emailError != null
         )
+
+        emailError?.let { error ->
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp),
+                fontSize = 12.sp
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("Contraseña")
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                passwordError = null
+                loginError = null
+            },
             placeholder = { Text("********") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "Contraseña"
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation()
+            shape = RoundedCornerShape(14.dp),
+            visualTransformation =
+            if (passwordVisible)
+                VisualTransformation.None
+            else
+                PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        passwordVisible = !passwordVisible
+                    }
+                ) {
+                    Icon(
+                        imageVector =
+                        if (passwordVisible)
+                            Icons.Default.VisibilityOff
+                        else
+                            Icons.Default.Visibility,
+                        contentDescription = "Mostrar u ocultar contraseña"
+                    )
+                }
+            },
+            isError = passwordError != null
         )
 
+        passwordError?.let { error ->
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp),
+                fontSize = 12.sp
+            )
+        }
+
+        loginError?.let { error ->
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 6.dp),
+                fontSize = 12.sp
+            )
+        }
+
         TextButton(
-            onClick = {},
+            onClick = onForgotPasswordClick,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -93,11 +171,19 @@ fun LoginScreen(
         // 2. CONECTA EL BOTÓN CON ROOM
         Button(
             onClick = {
-                if (email.isBlank() || password.isBlank()) {
-                    errorMessage = "Por favor, completa todos los campos."
-                } else {
-                    errorMessage = null // Limpia errores viejos
+                emailError = null
+                passwordError = null
+                loginError = null
 
+                if (email.isBlank()) {
+                    emailError = "Ingresá tu email."
+                }
+
+                if (password.isBlank()) {
+                    passwordError = "Ingresá tu contraseña."
+                }
+
+                if (email.isNotBlank() && password.isNotBlank()) {
                     // Busca en segundo plano si coinciden mail y contraseña
                     viewModel.iniciarSesion(
                         email = email,
@@ -106,13 +192,16 @@ fun LoginScreen(
                             if (loginExitoso) {
                                 onLoginClick() // Datos correctos, Pasa a la Home
                             } else {
-                                errorMessage = "Email o contraseña incorrectos."
+                                loginError = "Email o contraseña incorrectos."
                             }
                         }
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(28.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF7154B8)
             )
@@ -125,8 +214,19 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "¿No tenés cuenta? Registrate",
-                color = Color(0xFF7154B8)
+                buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = Color.Black)) {
+                        append("¿No tenés cuenta? ")
+                    }
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color(0xFF7154B8),
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
+                        append("Registrate")
+                    }
+                }
             )
         }
     }

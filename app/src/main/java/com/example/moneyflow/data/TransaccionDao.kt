@@ -11,10 +11,13 @@ import kotlinx.coroutines.flow.Flow
 interface TransaccionDao {
     @Query("SELECT * FROM transacciones ORDER BY fecha DESC")
     fun obtenerTodas(): Flow<List<Transaccion>>
+    @Query("SELECT * FROM transacciones WHERE usuarioId = :usuarioId ORDER BY fecha DESC")
+    fun obtenerPorUsuario(usuarioId: Int): Flow<List<Transaccion>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(transaccion: Transaccion)
 
     @Delete
     suspend fun borrar(transaccion: Transaccion)
+
 }
