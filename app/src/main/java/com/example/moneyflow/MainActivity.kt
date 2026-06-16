@@ -75,9 +75,9 @@ class MainActivity : ComponentActivity() {
                     // Pasa el transaccionViewModel para que guarde los gastos
                     MoneyFlowScreen.AddExpense -> AddExpenseScreen(
                         viewModel = transaccionViewModel,
+                        usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
                         onNavigate = { currentScreen = it }
                     )
-
                     MoneyFlowScreen.Savings -> SavingsScreen(
                         onNavigate = { currentScreen = it }
                     )

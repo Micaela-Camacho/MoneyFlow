@@ -36,14 +36,22 @@ class TransaccionViewModel(private val transaccionDao: TransaccionDao) : ViewMod
 
 
     // 5. Función para insertar usando Corrutinas
-    fun agregarTransaccion(descripcion: String, monto: Double, tipo: String, categoria: String) {
+    fun agregarTransaccion(
+        usuarioId: Int,
+        descripcion: String,
+        monto: Double,
+        tipo: String,
+        categoria: String
+    ) {
         val nuevaTransaccion = Transaccion(
+            usuarioId = usuarioId,
             descripcion = descripcion,
             monto = monto,
             tipo = tipo,
             categoria = categoria,
             fecha = System.currentTimeMillis()
         )
+
         viewModelScope.launch {
             transaccionDao.insertar(nuevaTransaccion)
         }

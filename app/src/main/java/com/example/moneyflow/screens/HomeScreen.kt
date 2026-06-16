@@ -131,19 +131,7 @@ fun HomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    onNavigate(MoneyFlowScreen.AddExpense)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF7154B8)
-                )
-            ) {
-                Text("Nuevo gasto")
-            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
