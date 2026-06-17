@@ -122,6 +122,7 @@ fun HomeScreen(
                     Color(0xFF73CD8C),
                     Color(0xFF006B35)
                 )
+            }
 
 
 
