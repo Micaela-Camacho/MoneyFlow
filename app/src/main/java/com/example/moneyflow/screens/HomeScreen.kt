@@ -123,13 +123,7 @@ fun HomeScreen(
                     Color(0xFF006B35)
                 )
 
-                SmallCard(
-                    "Ingresos",
-                    "$${String.format(Locale("es", "AR"), "%,.2f", totalIngresosExtra)}",
-                    Color(0xFF5AAAF5),
-                    Color.Blue
-                )
-            }
+
 
 
 
