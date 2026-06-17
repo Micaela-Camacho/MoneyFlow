@@ -25,20 +25,24 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
-    transaccionViewModel: TransaccionViewModel,
-    usuarioViewModel: UsuarioViewModel,
+    transaccionViewModel: TransaccionViewModel, // Recibe el motor de datos
+    usuarioViewModel: UsuarioViewModel,         // Recibe el motor de usuarios
     onNavigate: (MoneyFlowScreen) -> Unit
 ) {
+    // 1. Escucha las transacciones y el usuario en tiempo real
     val transacciones by transaccionViewModel.transaccionesUsuario.collectAsState()
     val usuarioActual by usuarioViewModel.usuarioActual.collectAsState()
 
+    // 2. Traem los totales ya masticados y procesados desde el ViewModel
     val totalGastos by transaccionViewModel.totalGastos.collectAsState()
     val totalIngresosExtra by transaccionViewModel.totalIngresosExtra.collectAsState()
     val totalAhorros by transaccionViewModel.totalAhorros.collectAsState()
 
+    // 3. LÓGICA DE PERFIL: Obtiene los datos base de la cuenta
     val sueldoBase = usuarioActual?.sueldoMensual ?: 0.0
     val nombreUsuario = usuarioActual?.nombre ?: "Usuario"
 
+    // 4. El saldo final contempla de forma exacta el sueldo base, ingresos extra, gastos y ahorros
     val saldoDisponible = sueldoBase + totalIngresosExtra - totalGastos - totalAhorros
 
     Column(
@@ -46,6 +50,7 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -53,7 +58,7 @@ fun HomeScreen(
                 .padding(18.dp)
         ) {
             Text(
-                text = "Hola, $nombreUsuario 👋",
+                text = "Hola, $nombreUsuario 👋", //
                 color = Color.White,
                 fontSize = 20.sp
             )
@@ -64,6 +69,7 @@ fun HomeScreen(
                 .weight(1f)
                 .padding(20.dp)
         ) {
+
             Text(
                 text = "Resumen Actual",
                 fontSize = 24.sp,
@@ -72,6 +78,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // CARD DE SALDO REAL
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -97,6 +104,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // CARDS PEQUEÑAS CON TOTALES AUTOMÁTICOS
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
@@ -114,7 +122,11 @@ fun HomeScreen(
                     Color(0xFF73CD8C),
                     Color(0xFF006B35)
                 )
-            } // <-- SE CERRÓ LA ROW ACÁ
+            }
+
+
+
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -126,6 +138,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // LISTA DINÁMICA: Si no hay movimientos muestra un aviso, si hay usa un LazyColumn
             if (transacciones.isEmpty()) {
                 Text(
                     text = "No hay movimientos registrados todavía.",
@@ -139,9 +152,11 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(transacciones) { transaccion ->
+                        // Formatea los milisegundos a una fecha legible
                         val formatoFecha = SimpleDateFormat("dd 'de' MMMM", Locale("es", "AR"))
                         val fechaLegible = formatoFecha.format(Date(transaccion.fecha))
 
+                        // Cambia el signo y el color según corresponda
                         val esIngreso = transaccion.tipo == "INGRESO"
                         val signo = if (esIngreso) "+$" else "-$"
                         val colorMonto = if (esIngreso) Color(0xFF18B85A) else Color.Red
@@ -155,13 +170,13 @@ fun HomeScreen(
                     }
                 }
             }
-        } // <-- SE CERRÓ LA COLUMN INTERNA ACÁ
+        }
 
         BottomBar(
             selected = MoneyFlowScreen.Home,
             onNavigate = onNavigate
         )
-    } // <-- SE CERRÓ LA COLUMN PRINCIPAL DE HOMESCREEN ACÁ
+    }
 }
 
 @Composable
