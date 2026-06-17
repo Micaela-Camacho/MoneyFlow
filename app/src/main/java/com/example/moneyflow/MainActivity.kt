@@ -122,7 +122,6 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     MoneyFlowScreen.AddExpense -> AddExpenseScreen(
                         viewModel = transaccionViewModel,
                         usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
-                        onNavigate = { currentScreen = it }
                         onNavigate = { currentScreen = it },
                         shakeTriggered = hasShaked,          // Pasa si se sacudió o no
                         onPositionReset = { onShakeEvent.value = false } // Función para apagar el gatillo
