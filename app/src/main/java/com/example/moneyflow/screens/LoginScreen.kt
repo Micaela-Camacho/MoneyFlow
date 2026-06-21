@@ -5,8 +5,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -126,11 +124,7 @@ fun LoginScreen(
                     }
                 ) {
                     Icon(
-                        imageVector =
-                        if (passwordVisible)
-                            Icons.Default.VisibilityOff
-                        else
-                            Icons.Default.Visibility,
+                        imageVector = if (passwordVisible) Icons.Default.Email else Icons.Default.Lock,
                         contentDescription = "Mostrar u ocultar contraseña"
                     )
                 }

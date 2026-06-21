@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     // Variables matemáticas para calcular la fuerza del sacudón (Shake)
     private var accelerationCurrent = SensorManager.GRAVITY_EARTH
     private var accelerationLast = SensorManager.GRAVITY_EARTH
-    private var shakeThreshold = 12.0f // Sensibilidad: si es muy sensible podés subirlo a 14 o 15
+    private var shakeThreshold = 2.5f // Sensibilidad: si es muy sensible podés subirlo a 14 o 15
 
     // Estado observable de Compose que va a cambiar a TRUE cuando detecte la rotación/movimiento brusco
     private var onShakeEvent = mutableStateOf(false)
@@ -68,15 +68,27 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
         setContent {
             MoneyFlowTheme {
-                // Estado local para saber qué pantalla dibujar (arranca en la Splash Screen)
-                var currentScreen by remember { mutableStateOf<MoneyFlowScreen>(MoneyFlowScreen.Splash) }
+                // 💾 1. Inicializamos SharedPreferences para guardar la configuración
+                val prefs = remember { getSharedPreferences("MoneyFlowPrefs", Context.MODE_PRIVATE) }
+                val yaVioOnboarding = remember { prefs.getBoolean("onboarding_completo", false) }
+
+                // 🔄 2. Si ya lo vio arranca en Login, sino arranca en el Splash (Onboarding)
+                var currentScreen by remember {
+                    mutableStateOf<MoneyFlowScreen>(
+                        if (yaVioOnboarding) MoneyFlowScreen.Login else MoneyFlowScreen.Splash
+                    )
+                }
 
                 // Compose "mira" constantemente si esta variable cambia
                 val hasShaked by remember { onShakeEvent }
 
                 when (currentScreen) {
                     MoneyFlowScreen.Splash -> SplashScreen(
-                        onStartClick = { currentScreen = MoneyFlowScreen.Login }
+                        onStartClick = {
+                            // 🚀 3. Al hacer clic en Comenzar, guardamos el estado para la próxima vez
+                            prefs.edit().putBoolean("onboarding_completo", true).apply()
+                            currentScreen = MoneyFlowScreen.Login
+                        }
                     )
 
                     // El Login ahora podría usar el usuarioViewModel más adelante para validar
@@ -121,10 +133,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     // PASAMOS LAS VARIABLES DEL SENSOR A LA PANTALLA DE AGREGAR GASTO
                     MoneyFlowScreen.AddExpense -> AddExpenseScreen(
                         viewModel = transaccionViewModel,
-                        usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
                         onNavigate = { currentScreen = it },
-                        shakeTriggered = hasShaked,          // Pasa si se sacudió o no
-                        onPositionReset = { onShakeEvent.value = false } // Función para apagar el gatillo
+                        shakeTriggered = onShakeEvent.value, // <-- Le pasamos el valor actual (true/false)
+                        onPositionReset = { onShakeEvent.value = false } // <-- ¡CLAVE! Compose avisa que ya limpió las cajas y resetea el sensor a false
                     )
                     MoneyFlowScreen.Savings -> SavingsScreen(
                         viewModel = metaAhorroViewModel,
@@ -171,9 +182,13 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             val z = event.values[2]
 
             accelerationLast = accelerationCurrent
-            // Pitágoras para calcular la aceleración neta restando la gravedad
-            accelerationCurrent = sqrt((x * x + y * y + z * z).toDouble()).toFloat()
-            val delta: Float = accelerationCurrent - accelerationLast
+
+            // 🚀 LA FÓRMULA CORRECTA: Calculamos la aceleración restando la gravedad de la Tierra (9.8)
+            val aceleracionNeta = sqrt((x * x + y * y + z * z).toDouble()).toFloat() - SensorManager.GRAVITY_EARTH
+
+            // Usamos el valor absoluto (Math.abs) para que no importe si el sacudón es hacia adelante o hacia atrás
+            accelerationCurrent = accelerationCurrent * 0.9f + aceleracionNeta // Filtro básico para suavizar ruido
+            val delta: Float = kotlin.math.abs(accelerationCurrent - accelerationLast)
 
             // Si el movimiento supera el umbral, activamos el evento
             if (delta > shakeThreshold) {
