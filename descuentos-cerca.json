@@ -19,5 +19,26 @@
     "beneficio": "10% c/App",
     "rubro": "Combustible",
     "distancia": "a 800m"
+},
+  {
+    "id": "4",
+    "comercio": "Cine Hoyts",
+    "beneficio": "2x1 c/Membresía",
+    "rubro": "Entretenimiento",
+    "distancia": "a 1.2km"
+  },
+  {
+    "id": "5",
+    "comercio": "Grido",
+    "beneficio": "20% en Kilo",
+    "rubro": "Heladería",
+    "distancia": "a 350m"
+  },
+  {
+    "id": "6",
+    "comercio": "Adidas",
+    "beneficio": "3 Cuotas Sin Interés",
+    "rubro": "Indumentaria",
+    "distancia": "a 2.1km"
   }
 ]
