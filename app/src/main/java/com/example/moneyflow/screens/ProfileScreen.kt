@@ -131,7 +131,7 @@ fun ProfileScreen(
                                 fontSize = 13.sp
                             )
 
-                            // 4. Formateamos el sueldo real del usuario con formato regional de Argentina
+                            // 4. Formatea el sueldo real del usuario con formato regional de Argentina
                             Text(
                                 text = "$${String.format(java.util.Locale("es", "AR"), "%,.2f", sueldoMostrar)}",
                                 fontSize = 24.sp,

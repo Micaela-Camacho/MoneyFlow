@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializamos el gestor de sensores nativo
+        // Inicializa el gestor de sensores nativo
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
@@ -68,11 +68,11 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
         setContent {
             MoneyFlowTheme {
-                // 💾 1. Inicializamos SharedPreferences para guardar la configuración
+                //  1. Inicializa SharedPreferences para guardar la configuración
                 val prefs = remember { getSharedPreferences("MoneyFlowPrefs", Context.MODE_PRIVATE) }
                 val yaVioOnboarding = remember { prefs.getBoolean("onboarding_completo", false) }
 
-                // 🔄 2. Si ya lo vio arranca en Login, sino arranca en el Splash (Onboarding)
+                //  2. Si ya lo vio arranca en Login, sino arranca en el Splash (Onboarding)
                 var currentScreen by remember {
                     mutableStateOf<MoneyFlowScreen>(
                         if (yaVioOnboarding) MoneyFlowScreen.Login else MoneyFlowScreen.Splash
@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                 when (currentScreen) {
                     MoneyFlowScreen.Splash -> SplashScreen(
                         onStartClick = {
-                            // 🚀 3. Al hacer clic en Comenzar, guardamos el estado para la próxima vez
+                            //  3. Al hacer clic en Comenzar, guarda el estado para la próxima vez
                             prefs.edit().putBoolean("onboarding_completo", true).apply()
                             currentScreen = MoneyFlowScreen.Login
                         }
@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                             // 1. Obtiene el ID del usuario recién logueado
                             val id = usuarioViewModel.usuarioLogueadoId.value
                             if (id != null) {
-                                // 2. Le avisás al ViewModel de transacciones qué usuario filtrar
+                                // 2. Le avisa al ViewModel de transacciones qué usuario filtrar
                                 transaccionViewModel.setUsuarioId(id)
                             }
                             currentScreen = MoneyFlowScreen.Home
@@ -130,12 +130,12 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                         onNavigate = { currentScreen = it }
                     )
 
-                    // PASAMOS LAS VARIABLES DEL SENSOR A LA PANTALLA DE AGREGAR GASTO
+                    // PASA LAS VARIABLES DEL SENSOR A LA PANTALLA DE AGREGAR GASTO
                     MoneyFlowScreen.AddExpense -> AddExpenseScreen(
                         viewModel = transaccionViewModel,
                         onNavigate = { currentScreen = it },
-                        shakeTriggered = onShakeEvent.value, // <-- Le pasamos el valor actual (true/false)
-                        onPositionReset = { onShakeEvent.value = false } // <-- ¡CLAVE! Compose avisa que ya limpió las cajas y resetea el sensor a false
+                        shakeTriggered = onShakeEvent.value, // <-- Le pasa el valor actual (true/false)
+                        onPositionReset = { onShakeEvent.value = false } // <-- Compose avisa que ya limpió las cajas y resetea el sensor a false
                     )
                     MoneyFlowScreen.Savings -> SavingsScreen(
                         viewModel = metaAhorroViewModel,
@@ -158,9 +158,9 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
-    // --- MANEJO CRÍTICO DEL CICLO DE VIDA (Para la defensa del TP) ---
+    // --- MANEJO CRÍTICO DEL CICLO DE VIDA  ---
 
-    // Activamos el sensor cuando la app pasa al frente
+    // Activa el sensor cuando la app pasa al frente
     override fun onResume() {
         super.onResume()
         accelerometer?.let {
@@ -168,7 +168,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         }
     }
 
-    // Apagamos el sensor si el usuario minimiza la app o bloquea el celu (Evita consumir RAM y batería)
+    // Apaga el sensor si el usuario minimiza la app o bloquea el celu (Evita consumir RAM y batería)
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
