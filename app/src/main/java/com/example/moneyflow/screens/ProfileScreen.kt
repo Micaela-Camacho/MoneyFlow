@@ -187,7 +187,6 @@ fun ProfileScreen(
             onClick = {
                 // 5. Lógica para el botón de Cerrar Sesión
                 viewModel.cerrarSesion()
-                onNavigate(MoneyFlowScreen.Login)
             }
         )
 
