@@ -79,11 +79,38 @@ fun SavingsScreen(
                                 fontSize = 14.sp
                             )
 
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Más opciones",
-                                tint = Color.Gray
-                            )
+                            var expanded by remember { mutableStateOf(false) }
+
+                            Box {
+                                IconButton(onClick = { expanded = true }) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "Más opciones",
+                                        tint = Color.Gray
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Editar") },
+                                        onClick = {
+                                            expanded = false
+
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = { Text("Eliminar") },
+                                        onClick = {
+                                            expanded = false
+                                            viewModel.eliminarMeta(meta.id)
+                                        }
+                                    )
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(18.dp))

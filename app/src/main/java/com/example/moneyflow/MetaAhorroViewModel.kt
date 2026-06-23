@@ -31,4 +31,10 @@ class MetaAhorroViewModel(private val metaAhorroDao: MetaAhorroDao) : ViewModel(
             metaAhorroDao.insertarMeta(nuevaMeta)
         }
     }
+
+    fun eliminarMeta(metaId: Int) {
+        viewModelScope.launch {
+            metaAhorroDao.eliminarMeta(metaId)
+        }
+    }
 }

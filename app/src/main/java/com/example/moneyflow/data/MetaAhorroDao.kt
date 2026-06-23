@@ -14,4 +14,7 @@ interface MetaAhorroDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarMeta(meta: MetaAhorro)
+
+    @Query("DELETE FROM metas_ahorro WHERE id = :metaId")
+    suspend fun eliminarMeta(metaId: Int)
 }
