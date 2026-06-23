@@ -17,4 +17,10 @@ interface MetaAhorroDao {
 
     @Query("DELETE FROM metas_ahorro WHERE id = :metaId")
     suspend fun eliminarMeta(metaId: Int)
+
+    @Query("SELECT * FROM metas_ahorro WHERE id = :metaId LIMIT 1")
+    fun obtenerMetaPorId(metaId: Int): Flow<MetaAhorro?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun actualizarMeta(meta: MetaAhorro)
 }

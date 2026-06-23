@@ -98,7 +98,8 @@ fun SavingsScreen(
                                         text = { Text("Editar") },
                                         onClick = {
                                             expanded = false
-
+                                            viewModel.seleccionarMeta(meta.id)
+                                            onNavigate(MoneyFlowScreen.EditSavingGoal)
                                         }
                                     )
 

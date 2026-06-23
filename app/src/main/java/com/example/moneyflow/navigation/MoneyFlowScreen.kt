@@ -11,4 +11,5 @@ sealed class MoneyFlowScreen {
     object Profile : MoneyFlowScreen()
     object ForgotPassword : MoneyFlowScreen()
     object NewSavingGoal : MoneyFlowScreen()
+    object EditSavingGoal : MoneyFlowScreen()
 }

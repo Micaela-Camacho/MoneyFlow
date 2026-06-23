@@ -153,6 +153,19 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                         usuarioId = usuarioViewModel.usuarioLogueadoId.collectAsState().value ?: 0,
                         onNavigate = { currentScreen = it }
                     )
+                    MoneyFlowScreen.EditSavingGoal -> {
+                        val metaId = metaAhorroViewModel.metaSeleccionadaId
+
+                        if (metaId != null) {
+                            EditSavingGoalScreen(
+                                viewModel = metaAhorroViewModel,
+                                metaId = metaId,
+                                onNavigate = { currentScreen = it }
+                            )
+                        } else {
+                            currentScreen = MoneyFlowScreen.Savings
+                        }
+                    }
                 }
             }
         }

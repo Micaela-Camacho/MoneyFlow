@@ -1,5 +1,8 @@
 package com.example.moneyflow
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moneyflow.data.MetaAhorro
@@ -9,8 +12,19 @@ import kotlinx.coroutines.launch
 
 class MetaAhorroViewModel(private val metaAhorroDao: MetaAhorroDao) : ViewModel() {
 
+    var metaSeleccionadaId by mutableStateOf<Int?>(null)
+        private set
+
+    fun seleccionarMeta(metaId: Int) {
+        metaSeleccionadaId = metaId
+    }
+
     fun obtenerMetasPorUsuario(usuarioId: Int): Flow<List<MetaAhorro>> {
         return metaAhorroDao.obtenerMetasPorUsuario(usuarioId)
+    }
+
+    fun obtenerMetaPorId(metaId: Int): Flow<MetaAhorro?> {
+        return metaAhorroDao.obtenerMetaPorId(metaId)
     }
 
     fun crearMeta(
@@ -29,6 +43,12 @@ class MetaAhorroViewModel(private val metaAhorroDao: MetaAhorroDao) : ViewModel(
 
         viewModelScope.launch {
             metaAhorroDao.insertarMeta(nuevaMeta)
+        }
+    }
+
+    fun actualizarMeta(meta: MetaAhorro) {
+        viewModelScope.launch {
+            metaAhorroDao.actualizarMeta(meta)
         }
     }
 
