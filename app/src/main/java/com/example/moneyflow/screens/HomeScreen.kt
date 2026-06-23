@@ -1,5 +1,12 @@
 package com.example.moneyflow.screens
-
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,7 +67,7 @@ fun HomeScreen(
     val sueldoBase = usuarioActual?.sueldoMensual ?: 0.0
     val nombreUsuario = usuarioActual?.nombre ?: "Usuario"
     val saldoDisponible = sueldoBase + totalIngresosExtra - totalGastos - totalAhorros
-
+    var mostrarSaldo by remember { mutableStateOf(true) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -142,15 +149,50 @@ fun HomeScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF9B87C9))
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF9B87C9)
+                    )
                 ) {
-                    Column(modifier = Modifier.padding(18.dp)) {
-                        Text(text = "Saldo disponible", color = Color.White)
-                        Text(
-                            text = "$${String.format(Locale("es", "AR"), "%,.2f", saldoDisponible)}",
-                            color = Color.White,
-                            fontSize = 32.sp
-                        )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Column {
+                            Text(
+                                text = "Saldo disponible",
+                                color = Color.White
+                            )
+
+                            Text(
+                                text = if (mostrarSaldo)
+                                    "$${String.format(Locale("es", "AR"), "%,.2f", saldoDisponible)}"
+                                else
+                                    "••••••••••",
+                                color = Color.White,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        IconButton(
+                            onClick = {
+                                mostrarSaldo = !mostrarSaldo
+                            }
+                        ) {
+                            Icon(
+                                imageVector =
+                                if (mostrarSaldo)
+                                    Icons.Default.Visibility
+                                else
+                                    Icons.Default.VisibilityOff,
+                                contentDescription = "Mostrar/Ocultar saldo",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }

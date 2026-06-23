@@ -1,5 +1,8 @@
 package com.example.moneyflow.screens
+import androidx.compose.material3.AlertDialog
 
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,14 +13,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -29,32 +25,70 @@ import androidx.compose.ui.unit.sp
 import com.example.moneyflow.UsuarioViewModel
 import com.example.moneyflow.components.BottomBar
 import com.example.moneyflow.navigation.MoneyFlowScreen
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: UsuarioViewModel,
     onNavigate: (MoneyFlowScreen) -> Unit
 ) {
-    // 1. Escucha al usuario logueado en tiempo real
     val usuarioActual by viewModel.usuarioActual.collectAsState()
     val usuarioId by viewModel.usuarioLogueadoId.collectAsState()
-    // Reacción automática al cerrar sesión
+
+    var darkMode by remember { mutableStateOf(false) }
+    var showEditSalaryDialog by remember { mutableStateOf(false) }
+    var sueldoEditado by remember { mutableStateOf("") }
+
     LaunchedEffect(usuarioId) {
         if (usuarioId == null) {
             onNavigate(MoneyFlowScreen.Login)
         }
     }
-    // 2. Variables dinámicas (si no hay nadie logueado por error, muestra un texto por defecto)
+
     val nombreMostrar = usuarioActual?.nombre ?: "Nombre Usuario"
     val emailMostrar = usuarioActual?.email ?: "usuario@usuario.com"
     val sueldoMostrar = usuarioActual?.sueldoMensual ?: 0.0
 
-    // Estado visual del switch de Dark Mode
-    var darkMode by remember { mutableStateOf(false) }
-
     val purple = Color(0xFF7154B8)
     val lightPurple = Color(0xFFE8DDFF)
     val veryLightPurple = Color(0xFFF6F1FA)
+
+    if (showEditSalaryDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditSalaryDialog = false },
+            title = {
+                Text("Editar sueldo mensual")
+            },
+            text = {
+                OutlinedTextField(
+                    value = sueldoEditado,
+                    onValueChange = { sueldoEditado = it },
+                    label = { Text("Nuevo sueldo") },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val nuevoSueldo = sueldoEditado.toDoubleOrNull()
+
+                        if (nuevoSueldo != null) {
+                            viewModel.actualizarSueldoMensual(nuevoSueldo)
+                            showEditSalaryDialog = false
+                        }
+                    }
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showEditSalaryDialog = false }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -62,11 +96,9 @@ fun ProfileScreen(
             .background(Color.White)
             .padding(horizontal = 24.dp, vertical = 40.dp)
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Box(
                 modifier = Modifier
                     .size(88.dp)
@@ -84,7 +116,6 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.width(16.dp))
 
             Column {
-                // 3. DATOS REALES DE LA BASE DE DATOS
                 Text(
                     text = nombreMostrar,
                     fontSize = 22.sp,
@@ -103,9 +134,7 @@ fun ProfileScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = veryLightPurple
-            )
+            colors = CardDefaults.cardColors(containerColor = veryLightPurple)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp)
@@ -120,9 +149,7 @@ fun ProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Row(
                         modifier = Modifier
@@ -138,7 +165,6 @@ fun ProfileScreen(
                                 fontSize = 13.sp
                             )
 
-                            // 4. Formatea el sueldo real del usuario con formato regional de Argentina
                             Text(
                                 text = "$${String.format(java.util.Locale("es", "AR"), "%,.2f", sueldoMostrar)}",
                                 fontSize = 24.sp,
@@ -146,10 +172,17 @@ fun ProfileScreen(
                             )
                         }
 
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar sueldo"
-                        )
+                        IconButton(
+                            onClick = {
+                                sueldoEditado = sueldoMostrar.toString()
+                                showEditSalaryDialog = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Editar sueldo"
+                            )
+                        }
                     }
                 }
             }
@@ -190,10 +223,9 @@ fun ProfileScreen(
             text = "Cerrar sesión",
             textColor = Color.Red,
             iconColor = Color.Red,
-            arrowColor = Color.Red,
             onClick = {
-                // 5. Lógica para el botón de Cerrar Sesión
                 viewModel.cerrarSesion()
+                onNavigate(MoneyFlowScreen.Login)
             }
         )
 
@@ -215,7 +247,6 @@ private fun ProfileOptionRow(
     onSwitchChange: (Boolean) -> Unit = {},
     textColor: Color = Color.Black,
     iconColor: Color = Color.Black,
-    arrowColor: Color = Color.Black,
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -248,17 +279,6 @@ private fun ProfileOptionRow(
                     checkedTrackColor = Color(0xFF7154B8)
                 )
             )
-        } else {
-            IconButton(
-                onClick = {},
-                enabled = false) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Ir a $text",
-                    tint = arrowColor,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
         }
     }
 

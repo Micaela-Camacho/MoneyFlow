@@ -19,4 +19,7 @@ interface UsuarioDao {
     // Para Home y Perfil: obtiene los datos del usuario logueado en tiempo real
     @Query("SELECT * FROM usuarios WHERE id = :id LIMIT 1")
     fun obtenerUsuarioPorId(id: Int): Flow<Usuario?>
+
+    @Query("UPDATE usuarios SET sueldoMensual = :nuevoSueldo WHERE id = :usuarioId")
+    suspend fun actualizarSueldo(usuarioId: Int, nuevoSueldo: Double)
 }

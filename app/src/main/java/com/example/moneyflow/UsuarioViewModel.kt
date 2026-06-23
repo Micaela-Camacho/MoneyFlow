@@ -94,4 +94,12 @@ class UsuarioViewModel(private val usuarioDao: UsuarioDao) : ViewModel() {
             }
         }
     }
+
+    fun actualizarSueldoMensual(nuevoSueldo: Double) {
+        val id = _usuarioLogueadoId.value ?: return
+
+        viewModelScope.launch {
+            usuarioDao.actualizarSueldo(id, nuevoSueldo)
+        }
+    }
 }
