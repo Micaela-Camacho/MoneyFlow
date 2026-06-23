@@ -1,6 +1,7 @@
 package com.example.moneyflow.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,7 +37,13 @@ fun ProfileScreen(
 ) {
     // 1. Escucha al usuario logueado en tiempo real
     val usuarioActual by viewModel.usuarioActual.collectAsState()
-
+    val usuarioId by viewModel.usuarioLogueadoId.collectAsState()
+    // Reacción automática al cerrar sesión
+    LaunchedEffect(usuarioId) {
+        if (usuarioId == null) {
+            onNavigate(MoneyFlowScreen.Login)
+        }
+    }
     // 2. Variables dinámicas (si no hay nadie logueado por error, muestra un texto por defecto)
     val nombreMostrar = usuarioActual?.nombre ?: "Nombre Usuario"
     val emailMostrar = usuarioActual?.email ?: "usuario@usuario.com"
@@ -214,7 +221,8 @@ private fun ProfileOptionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .height(52.dp)
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -241,7 +249,9 @@ private fun ProfileOptionRow(
                 )
             )
         } else {
-            IconButton(onClick = onClick) {
+            IconButton(
+                onClick = {},
+                enabled = false) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Ir a $text",
