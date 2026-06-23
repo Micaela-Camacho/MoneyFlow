@@ -155,23 +155,26 @@ fun HomeScreen(
                 }
             }
 
+
             item {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     SmallCard(
-                        "Gastos",
-                        "$${String.format(Locale("es", "AR"), "%,.2f", totalGastos)}",
-                        Color(0xFFFFE5E8),
-                        Color.Red
+                        modifier = Modifier.weight(1f),
+                        title = "Gastos",
+                        amount = "$${String.format(Locale("es", "AR"), "%,.2f", totalGastos)}",
+                        background = Color(0xFFFFE5E8),
+                        textColor = Color.Red
                     )
 
                     SmallCard(
-                        "Ahorros",
-                        "$${String.format(Locale("es", "AR"), "%,.2f", totalAhorros)}",
-                        Color(0xFF73CD8C),
-                        Color(0xFF006B35)
+                        modifier = Modifier.weight(1f),
+                        title = "Ahorros",
+                        amount = "$${String.format(Locale("es", "AR"), "%,.2f", totalAhorros)}",
+                        background = Color(0xFF73CD8C),
+                        textColor = Color(0xFF006B35)
                     )
                 }
             }
@@ -280,26 +283,43 @@ fun HomeScreen(
 
 @Composable
 private fun SmallCard(
+    modifier: Modifier = Modifier,
     title: String,
     amount: String,
     background: Color,
     textColor: Color
 ) {
     Card(
-        modifier = Modifier
-            .width(140.dp)
-            .height(78.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = background)
+        modifier = modifier.height(110.dp),
+        shape = RoundedCornerShape(14.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 8.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = background
+        )
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = title, fontSize = 12.sp, color = textColor)
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(text = amount, fontSize = 11.sp, color = textColor)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = title,
+                fontSize = 15.sp,
+                color = textColor
+            )
+
+            Text(
+                text = amount,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = textColor
+            )
         }
     }
 }
-
 @Composable
 private fun MovementItem(
     title: String,
