@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.AddCard
-import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -44,7 +44,7 @@ fun BottomBar(
         }
 
         BottomItem(
-            icon = Icons.Default.AddCard,
+            Icons.Default.Add,
             label = "Gastos",
             selected = selected == MoneyFlowScreen.AddExpense
         ) {
@@ -52,7 +52,7 @@ fun BottomBar(
         }
 
         BottomItem(
-            icon = Icons.Default.BookmarkBorder,
+            Icons.Default.Star,
             label = "Ahorros",
             selected = selected == MoneyFlowScreen.Savings
         ) {

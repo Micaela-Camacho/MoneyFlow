@@ -80,8 +80,10 @@ class UsuarioViewModel(private val usuarioDao: UsuarioDao) : ViewModel() {
 
     // Cierre de sesión
     fun cerrarSesion() {
-        _usuarioLogueadoId.value = null
-        _usuarioActual.value = null
+        viewModelScope.launch{
+            _usuarioLogueadoId.value = null
+            _usuarioActual.value = null
+        }
     }
 
     // Escucha al usuario en tiempo real

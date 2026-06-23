@@ -5,8 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -75,7 +74,7 @@ fun NewSavingGoalScreen(
             },
             placeholder = { Text("Ej: Vacaciones") },
             leadingIcon = {
-                Icon(Icons.Default.Flag, contentDescription = "Meta")
+                Icon(Icons.Default.Star, contentDescription = "Meta")
             },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
@@ -94,7 +93,7 @@ fun NewSavingGoalScreen(
             },
             placeholder = { Text("Ej: 600000") },
             leadingIcon = {
-                Icon(Icons.Default.AttachMoney, contentDescription = "Monto objetivo")
+                Icon(Icons.Default.Star, contentDescription = "Monto objetivo")
             },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
@@ -113,7 +112,7 @@ fun NewSavingGoalScreen(
             },
             placeholder = { Text("Ej: 320000") },
             leadingIcon = {
-                Icon(Icons.Default.AttachMoney, contentDescription = "Monto inicial")
+                Icon(Icons.Default.Star, contentDescription = "Monto inicial")
             },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
