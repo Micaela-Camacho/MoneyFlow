@@ -1,4 +1,6 @@
 package com.example.moneyflow.screens
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -124,8 +126,16 @@ fun LoginScreen(
                     }
                 ) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Email else Icons.Default.Lock,
-                        contentDescription = "Mostrar u ocultar contraseña"
+                        imageVector = if (passwordVisible) {
+                            Icons.Default.VisibilityOff
+                        } else {
+                            Icons.Default.Visibility
+                        },
+                        contentDescription = if (passwordVisible) {
+                            "Ocultar contraseña"
+                        } else {
+                            "Mostrar contraseña"
+                        }
                     )
                 }
             },
