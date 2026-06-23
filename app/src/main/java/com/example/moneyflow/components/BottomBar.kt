@@ -44,15 +44,15 @@ fun BottomBar(
         }
 
         BottomItem(
-            Icons.Default.Add,
+            icon = Icons.Default.Add,
             label = "Gastos",
-            selected = selected == MoneyFlowScreen.AddExpense
+            selected = selected == MoneyFlowScreen.Expenses || selected == MoneyFlowScreen.AddExpense
         ) {
-            onNavigate(MoneyFlowScreen.AddExpense)
+            onNavigate(MoneyFlowScreen.Expenses)
         }
 
         BottomItem(
-            Icons.Default.Star,
+            icon = Icons.Default.Star,
             label = "Ahorros",
             selected = selected == MoneyFlowScreen.Savings
         ) {

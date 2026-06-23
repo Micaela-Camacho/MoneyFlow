@@ -30,15 +30,14 @@ import com.example.moneyflow.navigation.MoneyFlowScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
-    viewModel: TransaccionViewModel, // recibe el motor de datos
+    viewModel: TransaccionViewModel,
     onNavigate: (MoneyFlowScreen) -> Unit,
-    shakeTriggered: Boolean,         // 1. NUEVO: Recibe el aviso del sensor desde el Main
-    onPositionReset: () -> Unit      // 2. NUEVO: Función para avisarle al Main que ya limpiamos
+    shakeTriggered: Boolean,
+    onPositionReset: () -> Unit
 ) {
     var amount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
 
     var expandedCategory by remember { mutableStateOf(false) }
 
@@ -55,14 +54,11 @@ fun AddExpenseScreen(
 
     val purple = Color(0xFF7154B8)
 
-    // 3. NUEVO: El "Efecto Lanzado" reacciona de inmediato cuando shakeTriggered pasa a ser TRUE
     LaunchedEffect(shakeTriggered) {
         if (shakeTriggered) {
-            // Se vacían de forma limpia los estados de los TextField que hicieron las chicas
             amount = ""
             category = ""
             description = ""
-            // Le avisamos a la MainActivity que ponga el gatillo en false otra vez
             onPositionReset()
         }
     }
@@ -73,7 +69,7 @@ fun AddExpenseScreen(
             .background(Color.White)
             .padding(horizontal = 28.dp, vertical = 48.dp)
     ) {
-        IconButton(onClick = { onNavigate(MoneyFlowScreen.Home) }) {
+        IconButton(onClick = { onNavigate(MoneyFlowScreen.Expenses) }) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Volver"
@@ -166,25 +162,6 @@ fun AddExpenseScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text("Fecha", fontSize = 16.sp)
-
-        OutlinedTextField(
-            value = date,
-            onValueChange = { date = it },
-            placeholder = { Text("DD/MM/YYYY") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = "Fecha"
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            shape = RoundedCornerShape(14.dp)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         Text("Descripción (opcional)", fontSize = 16.sp)
 
         OutlinedTextField(
@@ -206,26 +183,22 @@ fun AddExpenseScreen(
 
         Button(
             onClick = {
-                // convierte el texto del monto a número de forma segura
                 val montoNumerico = amount.toDoubleOrNull() ?: 0.0
-
-                // Si la descripción está vacía, le pone el nombre de la categoría por defecto
                 val descripcionFinal = description.ifBlank { category.ifBlank { "Gasto general" } }
 
                 if (montoNumerico > 0.0) {
-                    // Guarda físicamente en Room a través del ViewModel
                     viewModel.agregarTransaccion(
                         usuarioId = 1,
                         descripcion = descripcionFinal,
                         monto = montoNumerico,
-                        tipo = "EGRESO", // Queda como egreso automático
+                        tipo = "EGRESO",
                         categoria = category.ifBlank { "Varios" }
                     )
-                    // 4. Vuelve a la pantalla principal
-                    onNavigate(MoneyFlowScreen.Home)
+
+                    onNavigate(MoneyFlowScreen.Expenses)
                 }
             },
-            enabled = amount.isNotBlank(), // El botón se deshabilita si no escribieron un monto
+            enabled = amount.isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
