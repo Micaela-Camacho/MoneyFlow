@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     // Variables matemáticas para calcular la fuerza del sacudón (Shake)
     private var accelerationCurrent = SensorManager.GRAVITY_EARTH
     private var accelerationLast = SensorManager.GRAVITY_EARTH
-    private var shakeThreshold = 2.5f // Sensibilidad: si es muy sensible podés subirlo a 14 o 15
+    private var shakeThreshold = 2.5f // Sensibilidad: si es muy sensible podés subirlo a 14 o 15 ( Modificado 22/6)
 
     // Estado observable de Compose que va a cambiar a TRUE cuando detecte la rotación/movimiento brusco
     private var onShakeEvent = mutableStateOf(false)
