@@ -6,9 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SentimentSatisfied
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -147,11 +144,7 @@ fun RegisterScreen(
                     }
                 ) {
                     Icon(
-                        imageVector =
-                        if (passwordVisible)
-                            Icons.Default.VisibilityOff
-                        else
-                            Icons.Default.Visibility,
+                        imageVector = if (passwordVisible) Icons.Default.Email else Icons.Default.Lock,
                         contentDescription = "Mostrar u ocultar contraseña"
                     )
                 }
@@ -188,12 +181,8 @@ fun RegisterScreen(
                     }
                 ) {
                     Icon(
-                        imageVector =
-                        if (confirmPasswordVisible)
-                            Icons.Default.VisibilityOff
-                        else
-                            Icons.Default.Visibility,
-                        contentDescription = "Mostrar u ocultar confirmación de contraseña"
+                        imageVector = if (confirmPasswordVisible) Icons.Default.Email else Icons.Default.Lock,
+                        contentDescription = "Mostrar u ocultar contraseña"
                     )
                 }
             },
@@ -219,7 +208,7 @@ fun RegisterScreen(
             placeholder = { Text("Ej: 500000") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.SentimentSatisfied,
+                    imageVector = Icons.Default.Person,
                     contentDescription = "Sueldo mensual"
                 )
             },

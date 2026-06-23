@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Notes
-import androidx.compose.material.icons.filled.SentimentSatisfied
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -32,9 +30,10 @@ import com.example.moneyflow.navigation.MoneyFlowScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
-    viewModel: TransaccionViewModel, //  recibe el motor de datos
-    usuarioId: Int,
-    onNavigate: (MoneyFlowScreen) -> Unit
+    viewModel: TransaccionViewModel, // recibe el motor de datos
+    onNavigate: (MoneyFlowScreen) -> Unit,
+    shakeTriggered: Boolean,         // 1. NUEVO: Recibe el aviso del sensor desde el Main
+    onPositionReset: () -> Unit      // 2. NUEVO: Función para avisarle al Main que ya limpiamos
 ) {
     var amount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
@@ -55,6 +54,18 @@ fun AddExpenseScreen(
     )
 
     val purple = Color(0xFF7154B8)
+
+    // 3. NUEVO: El "Efecto Lanzado" reacciona de inmediato cuando shakeTriggered pasa a ser TRUE
+    LaunchedEffect(shakeTriggered) {
+        if (shakeTriggered) {
+            // Se vacían de forma limpia los estados de los TextField que hicieron las chicas
+            amount = ""
+            category = ""
+            description = ""
+            // Le avisamos a la MainActivity que ponga el gatillo en false otra vez
+            onPositionReset()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -93,7 +104,7 @@ fun AddExpenseScreen(
             placeholder = { Text("Ej:1500") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.AttachMoney,
+                    imageVector = Icons.Default.Lock,
                     contentDescription = "Monto"
                 )
             },
@@ -119,7 +130,7 @@ fun AddExpenseScreen(
                 placeholder = { Text("Seleccionar categoría") },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.SentimentSatisfied,
+                        imageVector = Icons.Default.Star,
                         contentDescription = "Categoría"
                     )
                 },
@@ -163,7 +174,7 @@ fun AddExpenseScreen(
             placeholder = { Text("DD/MM/YYYY") },
             trailingIcon = {
                 Icon(
-                    imageVector = Icons.Default.CalendarMonth,
+                    imageVector = Icons.Default.Lock,
                     contentDescription = "Fecha"
                 )
             },
@@ -182,7 +193,7 @@ fun AddExpenseScreen(
             placeholder = { Text("Ej: Almuerzo con amigos") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Notes,
+                    imageVector = Icons.Default.Star,
                     contentDescription = "Descripción"
                 )
             },
@@ -195,22 +206,21 @@ fun AddExpenseScreen(
 
         Button(
             onClick = {
-                // 2. convierte el texto del monto a número de forma segura
+                // convierte el texto del monto a número de forma segura
                 val montoNumerico = amount.toDoubleOrNull() ?: 0.0
 
                 // Si la descripción está vacía, le pone el nombre de la categoría por defecto
                 val descripcionFinal = description.ifBlank { category.ifBlank { "Gasto general" } }
 
                 if (montoNumerico > 0.0) {
-                    // 3. Guarda físicamente en Room a través del ViewModel
+                    // Guarda físicamente en Room a través del ViewModel
                     viewModel.agregarTransaccion(
-                        usuarioId = usuarioId,
+                        usuarioId = 1,
                         descripcion = descripcionFinal,
                         monto = montoNumerico,
                         tipo = "EGRESO", // Queda como egreso automático
                         categoria = category.ifBlank { "Varios" }
                     )
-
                     // 4. Vuelve a la pantalla principal
                     onNavigate(MoneyFlowScreen.Home)
                 }

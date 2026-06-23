@@ -6,12 +6,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -155,12 +151,12 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(36.dp))
 
         ProfileOptionRow(
-            icon = Icons.Default.Category,
+            icon = Icons.Default.Star,
             text = "Categorías"
         )
 
         ProfileOptionRow(
-            icon = Icons.Default.Flag,
+            icon = Icons.Default.Star,
             text = "Metas de ahorro",
             onClick = {
                 onNavigate(MoneyFlowScreen.Savings)
@@ -168,7 +164,7 @@ fun ProfileScreen(
         )
 
         ProfileOptionRow(
-            icon = Icons.Default.DarkMode,
+            icon = Icons.Default.Settings,
             text = "Dark mode",
             showSwitch = true,
             switchChecked = darkMode,
@@ -183,7 +179,7 @@ fun ProfileScreen(
         )
 
         ProfileOptionRow(
-            icon = Icons.Default.Logout,
+            icon = Icons.Default.AccountCircle,
             text = "Cerrar sesión",
             textColor = Color.Red,
             iconColor = Color.Red,
@@ -248,7 +244,7 @@ private fun ProfileOptionRow(
         } else {
             IconButton(onClick = onClick) {
                 Icon(
-                    imageVector = Icons.Default.ArrowForwardIos,
+                    imageVector = Icons.Default.Edit,
                     contentDescription = "Ir a $text",
                     tint = arrowColor,
                     modifier = Modifier.size(18.dp)
